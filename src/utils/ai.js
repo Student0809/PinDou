@@ -1,17 +1,14 @@
-﻿// 调用AI API识别图片
+export const FIXED_AI_API_URL = 'https://ark.cn-beijing.volces.com/api/v3/responses'
+export const FIXED_AI_MODEL = 'doubao-seed-2-0-lite-260215'
+
+// 调用AI API识别图片
 export async function recognizeImage(imageBase64, config) {
-  const apiUrl = config?.apiUrl
+  const apiUrl = FIXED_AI_API_URL
   const apiKey = config?.apiKey
-  const configuredModel = config?.modelName || config?.model
+  const modelName = FIXED_AI_MODEL
 
-  const isVolcArkResponses =
-    typeof apiUrl === 'string' &&
-    (apiUrl.includes('ark.cn-beijing.volces.com') || apiUrl.includes('/api/v3/responses'))
-
-  const modelName = isVolcArkResponses ? 'doubao-seed-2-0-lite-260215' : configuredModel
-
-  if (!apiUrl || !apiKey || !modelName) {
-    throw new Error('请先配置AI API')
+  if (!apiKey) {
+    throw new Error('请先在设置中填写 API Key')
   }
 
   const prompt = `请识别图片中的拼豆色号及对应数量。
@@ -23,46 +20,24 @@ C3 30
 只输出色号和数量，不添加解释或其他文字。`
 
   try {
-    const requestBody = isVolcArkResponses
-      ? {
-          model: modelName,
-          input: [
+    const requestBody = {
+      model: modelName,
+      input: [
+        {
+          role: 'user',
+          content: [
             {
-              role: 'user',
-              content: [
-                {
-                  type: 'input_image',
-                  image_url: imageBase64
-                },
-                {
-                  type: 'input_text',
-                  text: prompt
-                }
-              ]
+              type: 'input_image',
+              image_url: imageBase64
+            },
+            {
+              type: 'input_text',
+              text: prompt
             }
           ]
         }
-      : {
-          model: modelName,
-          messages: [
-            {
-              role: 'user',
-              content: [
-                {
-                  type: 'text',
-                  text: prompt
-                },
-                {
-                  type: 'image_url',
-                  image_url: {
-                    url: imageBase64
-                  }
-                }
-              ]
-            }
-          ],
-          max_tokens: 1000
-        }
+      ]
+    }
 
     const response = await fetch(apiUrl, {
       method: 'POST',
@@ -90,7 +65,7 @@ C3 30
       return data.output_text.trim()
     }
 
-    // 兼容 responses 接口：output 可能包含 reasoning + message，真正文本在 message.content[].type=output_text
+    // responses 接口：优先取 output 中 type=message 的 output_text
     if (Array.isArray(data.output)) {
       const messageChunks = []
       const fallbackChunks = []
@@ -129,11 +104,7 @@ C3 30
       }
     }
 
-    const content = data.choices?.[0]?.message?.content
-    if (Array.isArray(content)) {
-      return content.map(item => item?.text || '').join('\n').trim()
-    }
-    return content || ''
+    return ''
   } catch (error) {
     console.error('AI识别失败:', error)
     throw error
