@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <div class="page settings-page">
     <van-nav-bar title="设置中心" class="top-nav" />
 
@@ -47,9 +47,9 @@
     <div class="mobile-card">
       <div class="card-header">AI 配置</div>
       <div class="card-body">
-        <van-field v-model="aiApiUrl" label="API地址" placeholder="https://.../v1/chat/completions" />
         <van-field v-model="aiApiKey" label="API Key" type="password" placeholder="请输入 API Key" />
-        <van-field v-model="aiModel" label="模型名" placeholder="如 gpt-4.1-mini 或其他兼容模型" />
+        <van-field :model-value="FIXED_AI_API_URL" label="固定地址" readonly />
+        <van-field :model-value="FIXED_AI_MODEL" label="固定模型" readonly />
         <van-button type="primary" block round class="action-btn" @click="handleSaveAiConfig">
           保存 AI 配置
         </van-button>
@@ -83,6 +83,7 @@ import { useInventoryStore } from '../stores/inventory'
 import { useRecordsStore } from '../stores/records'
 import { useSettingsStore } from '../stores/settings'
 import { exportAllData, clearAllStorage } from '../utils/storage'
+import { FIXED_AI_API_URL, FIXED_AI_MODEL } from '../utils/ai'
 import RecordList from '../components/RecordList.vue'
 
 const inventoryStore = useInventoryStore()
@@ -91,9 +92,7 @@ const settingsStore = useSettingsStore()
 
 const defaultQuantity = ref(1000)
 const alertThreshold = ref(300)
-const aiApiUrl = ref('')
 const aiApiKey = ref('')
-const aiModel = ref('')
 const showRecords = ref(false)
 
 const records = computed(() => recordsStore.records)
@@ -131,19 +130,12 @@ const handleSaveThreshold = () => {
 }
 
 const handleSaveAiConfig = () => {
-  if (!aiApiUrl.value || !aiApiKey.value || !aiModel.value) {
-    showFailToast('请填写完整的 AI 配置')
+  if (!aiApiKey.value) {
+    showFailToast('请填写 API Key')
     return
   }
 
-  const config = {
-    apiUrl: aiApiUrl.value,
-    apiKey: aiApiKey.value,
-    modelName: aiModel.value,
-    model: aiModel.value
-  }
-
-  settingsStore.saveAiConfig(config)
+  settingsStore.saveAiConfig({ apiKey: aiApiKey.value })
   showSuccessToast('AI 配置保存成功')
 }
 
@@ -178,9 +170,7 @@ onMounted(() => {
   alertThreshold.value = settingsStore.alertThreshold
 
   if (settingsStore.aiConfig) {
-    aiApiUrl.value = settingsStore.aiConfig.apiUrl || ''
     aiApiKey.value = settingsStore.aiConfig.apiKey || ''
-    aiModel.value = settingsStore.aiConfig.modelName || settingsStore.aiConfig.model || ''
   }
 })
 </script>
