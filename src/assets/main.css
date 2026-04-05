@@ -1,0 +1,67 @@
+﻿:root {
+  --pd-bg: #fff8ea;
+  --pd-surface: #fffdf8;
+  --pd-surface-soft: #fff4dc;
+  --pd-text: #3f2a0f;
+  --pd-muted: #88653a;
+  --pd-primary: #d28c20;
+  --pd-primary-strong: #b87917;
+  --pd-danger: #d94a34;
+  --pd-success: #2e8f5b;
+  --pd-shadow: 0 10px 24px rgba(190, 138, 52, 0.16);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  min-height: 100%;
+}
+
+body {
+  font-family: "Alibaba PuHuiTi", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  color: var(--pd-text);
+  background-color: var(--pd-bg);
+}
+
+.page {
+  min-height: 100vh;
+  padding-bottom: 16px;
+}
+
+.mobile-card {
+  margin: 12px;
+  border-radius: 18px;
+  background: var(--pd-surface);
+  box-shadow: var(--pd-shadow);
+  overflow: hidden;
+}
+
+.card-header {
+  padding: 14px 16px 10px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--pd-text);
+}
+
+.card-body {
+  padding: 0 16px 16px;
+}
+
+.pill-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+@media (min-width: 768px) {
+  .page {
+    max-width: 560px;
+    margin: 0 auto;
+  }
+}
