@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <div class="page consume-page">
     <van-nav-bar title="豆子消耗" class="top-nav" />
 
@@ -75,7 +75,7 @@
           @click-preview="handlePreviewClick"
         />
 
-        <p class="ai-tip" v-if="!aiConfigured">请先去设置页填写 API 地址、Key 和模型名称。</p>
+        <p class="ai-tip" v-if="!aiConfigured">请先去设置页填写 API Key。</p>
 
         <van-button
           type="danger"
@@ -143,7 +143,7 @@ import { useInventoryStore } from '../stores/inventory'
 import { useRecordsStore } from '../stores/records'
 import { useSettingsStore } from '../stores/settings'
 import { parseBatchInput, isValidColorCode } from '../utils/parser'
-import { recognizeImage, fileToBase64 } from '../utils/ai'
+import { recognizeImage, fileToBase64, FIXED_AI_API_URL, FIXED_AI_MODEL } from '../utils/ai'
 import { colorCodes } from '../data/colors'
 
 const inventoryStore = useInventoryStore()
@@ -164,7 +164,7 @@ const previewStartIndex = ref(0)
 
 const aiConfigured = computed(() => {
   const config = settingsStore.aiConfig
-  return Boolean(config?.apiUrl && config?.apiKey && (config?.modelName || config?.model))
+  return Boolean(config?.apiKey)
 })
 
 const canConsume = computed(() => selectedColor.value && quantity.value && parseInt(quantity.value, 10) > 0)
@@ -187,9 +187,9 @@ const todayConsumeTotal = computed(() => {
 const normalizeAIConfig = () => {
   const cfg = settingsStore.aiConfig || {}
   return {
-    apiUrl: cfg.apiUrl,
+    apiUrl: FIXED_AI_API_URL,
     apiKey: cfg.apiKey,
-    modelName: cfg.modelName || cfg.model || ''
+    modelName: FIXED_AI_MODEL
   }
 }
 
